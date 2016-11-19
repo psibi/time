@@ -16,6 +16,7 @@ module Data.Time.LocalTime.TimeZone
 import Data.Time.Calendar.Private
 import Data.Time.Clock.POSIX
 import Data.Time.Clock.UTC
+import GHC.Pack
 
 #if __GLASGOW_HASKELL__ >= 709 || __GLASGOW_HASKELL__ < 702
 import Foreign
@@ -76,24 +77,21 @@ instance Show TimeZone where
 utc :: TimeZone
 utc = TimeZone 0 False "UTC"
 
-{-# CFILES cbits/HsTime.c #-}
-foreign import ccall unsafe "HsTime.h get_current_timezone_seconds" get_current_timezone_seconds :: CTime -> Ptr CInt -> Ptr CString -> IO CLong
+foreign import java unsafe "@static ghcvm.time.Utils.getTZOffset" getTZOffsetSeconds :: CTime -> IO Int
+foreign import java unsafe "@static ghcvm.time.Utils.isDST" isDST :: CTime -> IO Bool
+foreign import java unsafe "@static ghcvm.time.Utils.getTZ" getTZ :: IO JString
 
 posixToCTime :: POSIXTime -> CTime
 posixToCTime  = fromInteger . floor
 
 -- | Get the local time-zone for a given time (varying as per summertime adjustments)
 getTimeZone :: UTCTime -> IO TimeZone
-getTimeZone time = with 0 (\pdst -> with nullPtr (\pcname -> do
-    secs <- get_current_timezone_seconds (posixToCTime (utcTimeToPOSIXSeconds time)) pdst pcname
-    case secs of
-        0x80000000 -> fail "localtime_r failed"
-        _ -> do
-            dst <- peek pdst
-            cname <- peek pcname
-            name <- peekCString cname
-            return (TimeZone (div (fromIntegral secs) 60) (dst == 1) name)
-    ))
+getTimeZone time = do
+  let ctime = posixToCTime (utcTimeToPOSIXSeconds time) -- In seconds
+  secs <- getTZOffsetSeconds ctime
+  dst <- isDST ctime
+  cname <- getTZ
+  return $ TimeZone (secs `div` 60) dst (unpackCString cname)
 
 -- | Get the current time-zone
 getCurrentTimeZone :: IO TimeZone

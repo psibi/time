@@ -24,13 +24,11 @@ instance Storable CTimeval where
         pokeElemOff (castPtr p) 0 s
         pokeElemOff (castPtr p) 1 mus
 
-foreign import ccall unsafe "time.h gettimeofday" gettimeofday :: Ptr CTimeval -> Ptr () -> IO CInt
+foreign import java unsafe "@static java.lang.System.currentTimeMillis" gettimeofday :: IO CLong
 
 -- | Get the current POSIX time from the system clock.
 getCTimeval :: IO CTimeval
-getCTimeval = with (MkCTimeval 0 0) (\ptval -> do
-    throwErrnoIfMinus1_ "gettimeofday" $ gettimeofday ptval nullPtr
-    peek ptval
-    )
-
+getCTimeval = do
+  t <- gettimeofday
+  return $ MkCTimeval (t `div` 1000) ((t `mod` 1000) * 1000)
 #endif

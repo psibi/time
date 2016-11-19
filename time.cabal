@@ -10,26 +10,26 @@ bug-reports:    https://github.com/haskell/time/issues
 synopsis:       A time library
 description:    A time library
 category:       System
-build-type:     Configure
+build-type:     Simple
 cabal-version:  >=1.10
 tested-with:    GHC == 8.0.1, GHC == 7.10.3, GHC == 7.8.4
 x-follows-version-policy:
 
 extra-source-files:
     changelog.md
-    aclocal.m4
-    configure.ac
-    configure
+    -- aclocal.m4
+    -- configure.ac
+    -- configure
     lib/include/HsConfigure.h
     lib/include/HsTime.h
     lib/include/HsTimeConfig.h.in
     test/Test/*.c
     test/Test/*.h
 extra-tmp-files:
-    config.log
-    config.status
-    autom4te.cache
-    lib/include/HsTimeConfig.h
+    -- config.log
+    -- config.status
+    -- autom4te.cache
+    -- lib/include/HsTimeConfig.h
 
 source-repository head
     type:     git
@@ -68,7 +68,8 @@ library
         Data.Time.Format,
         Data.Time
     default-extensions:    CPP
-    c-sources: lib/cbits/HsTime.c
+    -- c-sources: lib/cbits/HsTime.c
+    java-sources: java/Utils.java
     other-modules:
         Data.Time.Calendar.Private,
         Data.Time.Calendar.Days,
@@ -85,13 +86,13 @@ library
         Data.Time.Format.Parse
         Data.Time.Format.Locale
     include-dirs: lib/include
-    if os(windows)
-        install-includes:
-            HsTime.h
-    else
-        install-includes:
-            HsTime.h
-            HsTimeConfig.h
+    -- if os(windows)
+    --     install-includes:
+    --         HsTime.h
+    -- else
+    --     install-includes:
+    --         HsTime.h
+    --         HsTimeConfig.h
 
 test-suite ShowDefaultTZAbbreviations
     type: exitcode-stdio-1.0

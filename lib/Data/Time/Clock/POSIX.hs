@@ -10,7 +10,7 @@ import Data.Time.Calendar.Days
 import Data.Fixed
 import Control.Monad
 
-#include "HsTimeConfig.h"
+-- #include "HsTimeConfig.h"
 
 #ifdef mingw32_HOST_OS
 import Data.Word    ( Word64)
